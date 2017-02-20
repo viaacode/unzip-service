@@ -5,7 +5,7 @@ broker='amqp://guest:guest@localhost:5672/?heartbeat=120'
 elasticsearch='http://do-mgm-lst-01.do.viaa.be:9200/kranten/'
 
 function run_listener () {
-	nodemon ./src/listeners/${1} \
+	node ./src/listeners/${1} \
 		--broker="${broker}" \
 		--listenqueue=${2} \
 		--replyqueue=${3} \
