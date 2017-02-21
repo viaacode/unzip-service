@@ -9,8 +9,8 @@ Publish a message on the request queue in the following format:
 ```json
 {
     "correlation_id": "abc123",
-    "source_filename": "actual_zipfile.zip",
-    "source_filepath": "/path/to/zipfile"
+    "path": "/path/to/zipfile/location",
+    "source_filename": "zipfile.zip"
 }
 ```
 
@@ -20,8 +20,10 @@ The service will respond with a message on the response queue in the following f
 
 ```json
 {
-	"success": true,
-	"correlation_id": "abc123",
-	"destination_path": "/path/to/zipfile/actual_zipfile"
-}
+    "success": true,
+    "correlation_id": "abc123",
+    "path": "/path/to/zipfile/location",
+    "source_filename": "zipfile.zip",
+    "destination_foldername": "zipfile"
+ }
 ```

@@ -4,14 +4,14 @@ const Unzipper = require('../utils/unzipper');
 const q = require ('q');
 
 const options = cmdargs.parse ({
-    correlationProperties: ['correlation_id', 'destination_path'
+    correlationProperties: ['correlation_id', 'path', 'source_filename'
     ],
     listenqueue: 'alto-requests',
     replyqueue: 'alto-replies'
 });
 
 function ensureValidRequest (data) {
-    var valid = ('source_filepath' in data) && ('source_filename' in data)
+    var valid = ('path' in data) && ('source_filename' in data)
         && ('correlation_id' in data);
     if ( ! valid ) {
         var err = { 'message': 'Missing properties for successful copy' };
@@ -32,7 +32,7 @@ listen (options, function (ch, data, response) {
         if (err) {
             deferred.reject(err)
         } else {
-            response.destination_path = res.destination_path;
+            response.destination_foldername = res.destination_folder;
             deferred.resolve(response);
         }
     });
