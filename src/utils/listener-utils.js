@@ -2,6 +2,8 @@ var amqp = require('amqplib');
 var chalk = require ('chalk');
 var Logger = require ('./logger').Logger;
 var q = require ('q');
+var url = require('amqplib');
+var URL = require('url');
 
 (function () {
 
@@ -42,8 +44,29 @@ var q = require ('q');
 			this.logger.error ('Too many connection attempts. Shutting down.');
 			return q.reject ('too many connect attempts');
 		}
+		console.log('BROKER: ', this.options.broker);
 
-		return amqp.connect (this.options.broker).catch (function (err) {
+		// Parse url correctly
+        var parts = URL.parse(this.options.broker, true);
+        var sockopts = {};
+        var protocol, fields;
+        protocol = parts.protocol;
+        sockopts.host = parts.hostname;
+        sockopts.port = parseInt(parts.port) || ((protocol === 'amqp:') ? 5672 : 5671);
+        var vhost = parts.pathname ? parts.pathname.substr(1) : null;
+        var credentials = credentialsFromUrl(parts);
+
+        var connectionObj = {
+        	protocol: protocol.replace(':', ''),
+			hostname: sockopts.host,
+			port: sockopts.port,
+			username: credentials.username,
+			password: credentials.password
+		};
+
+
+
+		return amqp.connect (connectionObj).catch (function (err) {
 			this.logger.warn ('connection attempt failed ...', { broker_url: this.options.broker, err: err.message });
 			this.logger.warn (`retrying in ${this.options.reconnectTimeout} milliseconds (attempt ${count})`);
 			console.warn (err);
@@ -149,11 +172,23 @@ var q = require ('q');
 			this.logger.error ('Failed to send response', { error: err.message });
 			console.warn (err);
 		}.bind (this));
-	}
+	};
+
+    function credentialsFromUrl(parts) {
+        var user = 'guest', passwd = 'guest';
+        if (parts.auth) {
+            var auth = parts.auth.split(/:(.+)/);
+            user = auth[0];
+            passwd = auth[1];
+        }
+        console.log(passwd);
+        return {username: user, password: passwd };
+    }
+
+
 
 	module.exports = {
 		abortOnError: abortOnError,
 		listen: function listen (options, fn) { new Connection (options, fn); }
 	}
-
 } ());
