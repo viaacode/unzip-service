@@ -2,7 +2,6 @@ var amqp = require('amqplib');
 var chalk = require ('chalk');
 var Logger = require ('./logger').Logger;
 var q = require ('q');
-var url = require('amqplib');
 var URL = require('url');
 
 (function () {
