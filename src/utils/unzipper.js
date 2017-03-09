@@ -1,5 +1,7 @@
 const AdmZip = require('adm-zip');
 const fileUtils = require('./fileUtils');
+const chmodr = require('chmodr');
+const fs = require('fs');
 
 function Unzipper (config, params) {
     this.config = config;
@@ -13,9 +15,17 @@ Unzipper.prototype.unzip = function(cb) {
     const zip = new AdmZip(fullPath);
     console.log('Unzipping...');
     zip.extractAllTo( destinationPath, true);
-    cb(null, {
-        destination_folder: destinationFolder
+    const mode = fs.statSync(fullPath).mode;
+
+    console.log(destinationPath);
+    console.log('mode: ', mode);
+
+    chmodr(destinationPath, mode, () => {
+        cb(null, {
+            destination_folder: destinationFolder
+        });
     });
+
 };
 
 module.exports = Unzipper;
